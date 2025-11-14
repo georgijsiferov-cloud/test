@@ -39,6 +39,39 @@ make x86-cpp20
 make clean-cpp20
 ```
 
+### Building with Visual Studio (C++20 version)
+
+#### 方法一：使用 Visual Studio IDE
+
+1. 打开 `beacon.sln` 解决方案文件
+2. 选择 `beacon_cpp20` 项目
+3. 选择配置（Debug/Release）和平台（x86/x64）
+4. 选择协议类型：
+   - `Debug EXE` / `Release EXE` - HTTP/WebSocket Beacon
+   - `Debug_SMB` / `Release SVC` - SMB Beacon  
+   - `Debug_TCP` - TCP Beacon
+   - `DebugDLL` / `Release DLL` - DLL 版本
+5. 点击"生成" → "生成解决方案"
+
+#### 方法二：使用批处理脚本
+
+```bash
+# 运行自动编译脚本
+build_vs_cpp20.bat
+```
+
+#### 方法三：使用 MSBuild 命令行
+
+```bash
+# 编译 x64 Release 版本
+MSBuild beacon_cpp20\beacon_cpp20.vcxproj /p:Configuration="Release EXE" /p:Platform=x64 /p:LanguageStandard=stdcpp20
+
+# 编译 x86 Debug DLL 版本
+MSBuild beacon_cpp20\beacon_cpp20.vcxproj /p:Configuration="DebugDLL" /p:Platform=Win32 /p:LanguageStandard=stdcpp20
+```
+
+> 📖 **详细指南**: 查看 `VISUAL_STUDIO_CPP20_GUIDE.md` 获取完整的 Visual Studio 编译指南
+
 ### Building with CMake (C++20 version)
 
 ```bash
