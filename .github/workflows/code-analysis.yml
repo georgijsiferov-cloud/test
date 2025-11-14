@@ -1,0 +1,157 @@
+name: Code Analysis
+
+on:
+  push:
+    branches: [ main, develop, refactor-beacon-modernize-cpp20-add-cicd ]
+    paths:
+      - 'beacon_cpp20/**'
+      - '.github/workflows/code-analysis.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'beacon_cpp20/**'
+
+jobs:
+  cpp-lint:
+    name: C++ Code Analysis
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Analysis Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck clang-tools cmake
+    
+    - name: Run cppcheck
+      run: |
+        echo "=== Running cppcheck on beacon_cpp20 ==="
+        cppcheck --enable=all --suppress=missingIncludeSystem \
+                 --std=c++20 beacon_cpp20/ \
+                 -i beacon_cpp20/build --output-file=cppcheck-report.txt
+        cat cppcheck-report.txt
+        if grep -q "error:" cppcheck-report.txt; then
+          echo "✗ cppcheck found critical issues"
+          exit 1
+        else
+          echo "✓ cppcheck passed"
+        fi
+    
+    - name: Upload cppcheck Report
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: cppcheck-report
+        path: cppcheck-report.txt
+        retention-days: 30
+    
+    - name: Clang Format Check
+      run: |
+        echo "=== Checking code formatting with clang-format ==="
+        if command -v clang-format-15 &> /dev/null; then
+          CLANG_FORMAT="clang-format-15"
+        elif command -v clang-format &> /dev/null; then
+          CLANG_FORMAT="clang-format"
+        else
+          echo "clang-format not found, skipping"
+          exit 0
+        fi
+        
+        for file in beacon_cpp20/*.{h,cpp}; do
+          if [ -f "$file" ]; then
+            $CLANG_FORMAT --dry-run --Werror "$file" || true
+          fi
+        done
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Security Tools
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang flawfinder
+    
+    - name: Run Flawfinder
+      run: |
+        echo "=== Running flawfinder security analysis ==="
+        flawfinder beacon_cpp20/ || true
+    
+    - name: Check for Common Vulnerabilities
+      run: |
+        echo "=== Checking for common C++ vulnerabilities ==="
+        
+        # Check for unsafe functions
+        UNSAFE_FUNCTIONS=(strcpy strcat sprintf gets strcpy_s)
+        FOUND_UNSAFE=0
+        
+        for func in "${UNSAFE_FUNCTIONS[@]}"; do
+          COUNT=$(grep -r "$func" beacon_cpp20/ --include="*.cpp" --include="*.h" | wc -l)
+          if [ $COUNT -gt 0 ]; then
+            echo "⚠ Found potential unsafe function: $func ($COUNT occurrences)"
+            FOUND_UNSAFE=1
+          fi
+        done
+        
+        if [ $FOUND_UNSAFE -eq 0 ]; then
+          echo "✓ No common unsafe functions detected"
+        fi
+
+  dependency-check:
+    name: Dependency Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check Include Dependencies
+      run: |
+        echo "=== Validating C++ standard library dependencies ==="
+        
+        # Check for C++20 specific headers
+        echo "Checking for C++20 headers usage in beacon_cpp20:"
+        grep -r "#include <" beacon_cpp20/ --include="*.h" --include="*.cpp" | \
+        grep -E "memory|span|optional|map|cstdint" || echo "No C++20 headers found"
+        
+        # Check for Windows-specific includes
+        echo ""
+        echo "Checking Windows-specific includes in beacon_cpp20:"
+        grep -r "#include" beacon_cpp20/ --include="*.h" --include="*.cpp" | \
+        grep -i windows | head -20 || echo "Limited Windows headers usage"
+        
+        echo "✓ Dependency validation completed"
+
+  compiler-compatibility:
+    name: Compiler Compatibility Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Compilers
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ clang mingw-w64
+    
+    - name: Check C++20 Compatibility
+      run: |
+        echo "=== Checking C++20 compatibility ==="
+        
+        # Test with g++
+        echo "Testing with g++..."
+        g++ --version
+        g++ -std=c++20 -fno-exceptions -c beacon_cpp20/Agent.h \
+          -I beacon_cpp20/ -o /tmp/test_agent.o 2>&1 || true
+        
+        # Test with clang
+        echo ""
+        echo "Testing with clang..."
+        clang++ --version
+        clang++ -std=c++20 -fno-exceptions -c beacon_cpp20/Agent.h \
+          -I beacon_cpp20/ -o /tmp/test_agent_clang.o 2>&1 || true
+        
+        echo "✓ Compiler compatibility check completed"

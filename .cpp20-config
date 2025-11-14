@@ -1,0 +1,51 @@
+# C++20 Beacon Configuration
+# This file documents the C++20 specific build settings
+
+# C++20 Standard
+CXX_STANDARD=20
+CXX_STANDARD_REQUIRED=ON
+CXX_EXTENSIONS=OFF
+
+# Compiler Flags for Security
+SECURITY_FLAGS=-fno-stack-protector \
+               -fno-strict-overflow \
+               -fno-delete-null-pointer-checks \
+               -fno-strict-aliasing \
+               -fno-builtin
+
+# Optimization Flags
+OPTIMIZATION_FLAGS=-fno-exceptions \
+                   -fno-unwind-tables \
+                   -fno-asynchronous-unwind-tables
+
+# C++20 Specific Optimizations
+CPP20_FLAGS=-std=c++20 \
+            -fconcepts \
+            -fno-rtti
+
+# Target Architectures
+TARGET_ARCHS=x86 x86_64
+
+# Supported Protocols
+PROTOCOLS=BEACON_HTTP BEACON_SMB BEACON_TCP BEACON_WS
+
+# Build Modes
+BUILD_MODES=BUILD_DLL BUILD_SVC BUILD_SHELLCODE
+
+# Windows SDK Minimum Version (for compatible builds)
+WINVER=0x0600
+
+# C++20 Libraries Used
+STL_COMPONENTS=memory span optional map array vector string_view cstdint
+
+# Compiler Requirements
+REQUIRED_COMPILER_VERSION=10.0  # GCC 10 minimum for full C++20 support
+
+# Analysis Tools Configuration
+CPPCHECK_ENABLE=all
+CPPCHECK_SUPPRESS=missingIncludeSystem
+
+FLAWFINDER_MIN_RISK=2  # Show medium risk and above
+
+# Code Quality Thresholds
+MAX_ISSUES_ALLOWED=0

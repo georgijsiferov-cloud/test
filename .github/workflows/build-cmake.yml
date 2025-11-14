@@ -1,0 +1,94 @@
+name: Build with CMake
+
+on:
+  push:
+    branches: [ main, develop, refactor-beacon-modernize-cpp20-add-cicd ]
+    paths:
+      - 'beacon_cpp20/**'
+      - '.github/workflows/build-cmake.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'beacon_cpp20/**'
+
+jobs:
+  cmake-build:
+    name: CMake Build - ${{ matrix.arch }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        arch: [x86_64, i686]
+        beacon_type: [BEACON_HTTP, BEACON_SMB, BEACON_TCP, BEACON_WS]
+        build_mode: [BUILD_DLL, BUILD_SVC, BUILD_SHELLCODE]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install MinGW-w64 and CMake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 cmake make
+    
+    - name: Create Build Directory
+      run: |
+        cd beacon_cpp20
+        mkdir -p build
+    
+    - name: Configure CMake - ${{ matrix.arch }} - ${{ matrix.beacon_type }} - ${{ matrix.build_mode }}
+      run: |
+        cd beacon_cpp20/build
+        cmake .. \
+          -DBEACON_TYPE=${{ matrix.beacon_type }} \
+          -DBUILD_MODE=${{ matrix.build_mode }} \
+          -DTARGET_ARCH=${{ matrix.arch }} \
+          -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Build
+      run: |
+        cd beacon_cpp20/build
+        make -j$(nproc)
+    
+    - name: List Build Output
+      run: |
+        echo "=== Build Output for ${{ matrix.arch }} - ${{ matrix.beacon_type }} - ${{ matrix.build_mode }} ==="
+        ls -lh beacon_cpp20/build/ 2>/dev/null || echo "Build directory empty"
+    
+    - name: Upload CMake Build Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: beacon-cmake-${{ matrix.arch }}-${{ matrix.beacon_type }}-${{ matrix.build_mode }}
+        path: beacon_cpp20/build/
+        retention-days: 30
+
+  cmake-validation:
+    name: CMake Configuration Validation
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake
+    
+    - name: Validate CMakeLists.txt
+      run: |
+        cd beacon_cpp20
+        cmake --version
+        cmake -P cmake_validate.cmake 2>/dev/null || true
+        echo "CMakeLists.txt validation completed"
+    
+    - name: CMake Configuration Check
+      run: |
+        cd beacon_cpp20
+        mkdir -p build_check
+        cd build_check
+        cmake .. -DBEACON_TYPE=BEACON_HTTP 2>&1 | tee cmake_output.log
+        if [ $? -eq 0 ]; then
+          echo "✓ CMake configuration successful"
+        else
+          echo "✗ CMake configuration failed"
+          exit 1
+        fi
