@@ -2,7 +2,7 @@
 
 ## 重构目标
 
-将Beacon Agent从C/C++混合编程重构为纯现代C++17实现，并遵循Google C++代码规范。
+将Beacon Agent从C/C++混合编程重构为纯现代C++20实现，并遵循Google C++代码规范。
 
 ## 项目组织
 
@@ -11,6 +11,7 @@
 ```
 modern_cpp_beacon/
 ├── ARCHITECTURE.md         # 架构设计文档
+├── CPP20_FEATURES.md       # C++20特性说明
 ├── EXAMPLES.md             # 使用示例
 ├── README.md               # 项目说明
 ├── CMakeLists.txt          # 构建配置
@@ -20,6 +21,7 @@ modern_cpp_beacon/
 │       ├── beacon.h
 │       ├── beacon_config.h
 │       ├── command_executor.h
+│       ├── concepts.h
 │       ├── http_transport.h
 │       ├── task.h
 │       └── transport.h
@@ -29,6 +31,7 @@ modern_cpp_beacon/
     ├── command_executor.cc
     ├── http_transport.cc
     ├── main.cc
+    ├── main_cpp20.cc
     └── task.cc
 ```
 
@@ -198,12 +201,14 @@ make
 ### 运行示例
 ```bash
 cd build/modern_cpp_beacon
-./beacon_agent
+./beacon_agent           # C++17兼容示例
+./beacon_agent_cpp20     # C++20增强示例
 ```
 
 ### 构建结果
 - `libadaptix_beacon.a`: 静态库
-- `beacon_agent`: 可执行示例程序
+- `beacon_agent`: C++17风格示例程序
+- `beacon_agent_cpp20`: 展示C++20特性的示例程序
 
 ## 代码质量指标
 
@@ -284,10 +289,11 @@ cd build/modern_cpp_beacon
 
 ## 总结
 
-本次重构成功地将Beacon Agent从C/C++混合编程升级为现代C++17实现，具有以下特点：
+本次重构成功地将Beacon Agent从C/C++混合编程升级为现代C++20实现，具有以下特点：
 
 ✅ **完全符合Google C++代码规范**
-✅ **广泛使用现代C++17特性**
+✅ **广泛使用现代C++17/C++20特性**
+✅ **应用C++20 Concepts、std::format等新特性**
 ✅ **保持了所有原有功能**
 ✅ **改善了内存安全性**
 ✅ **提高了类型安全性**
@@ -302,4 +308,5 @@ cd build/modern_cpp_beacon
 - [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
 - [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines)
 - [Modern C++ Features](https://github.com/AnthonyCalandra/modern-cpp-features)
+- [C++20 Reference](https://en.cppreference.com/w/cpp/20)
 - [C++17 Reference](https://en.cppreference.com/w/cpp/17)

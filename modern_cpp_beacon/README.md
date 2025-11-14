@@ -1,6 +1,6 @@
 # Adaptix Modern C++ Beacon Agent System
 
-现代C++17实现的Beacon代理系统，遵循Google C++代码规范。
+现代C++20实现的Beacon代理系统，遵循Google C++代码规范。
 
 ## 概述
 
@@ -8,8 +8,9 @@ Adaptix Beacon Agent是一个C2（命令与控制）beacon实现，支持远程�
 
 ## 现代C++特性
 
-本实现采用现代C++17特性：
+本实现采用现代C++20特性：
 
+### C++17特性
 - **智能指针**：使用 `std::unique_ptr` 和 `std::shared_ptr` 实现自动内存管理
 - **移动语义**：实现高效的移动构造函数和移动赋值运算符
 - **强类型枚举**：使用 `enum class` 提供类型安全的枚举
@@ -19,6 +20,13 @@ Adaptix Beacon Agent是一个C2（命令与控制）beacon实现，支持远程�
 - **原子操作**：使用 `std::atomic` 实现线程安全操作
 - **标准线程库**：使用 `std::thread`、`std::mutex` 和 `std::condition_variable`
 - **Chrono库**：使用 `std::chrono` 实现类型安全的时间操作
+
+### C++20新增特性
+- **Concepts（概念）**：编译时类型约束，替代SFINAE
+- **std::format**：类型安全的格式化输出
+- **Designated Initializers**：指定初始化器，代码更清晰
+- **Three-way comparison**：统一的比较运算符
+- **Ranges库**：强大的数据处理管道（预留扩展）
 
 ## Google C++代码规范遵循
 
@@ -104,13 +112,15 @@ make
 
 ### 构建要求
 - CMake 3.14 或更高版本
-- 支持C++17的编译器（GCC 7+, Clang 5+, MSVC 2017+）
+- 支持C++20的编译器（GCC 10+, Clang 10+, MSVC 2019 16.11+）
+  - 推荐：GCC 13+, Clang 15+, MSVC 2022+
 - Linux/Unix系统需要pthread库
 
 ## 文档资源
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): 架构设计与实现细节
 - [EXAMPLES.md](EXAMPLES.md): 使用示例和扩展参考
+- [CPP20_FEATURES.md](CPP20_FEATURES.md): C++20特性应用指南
 
 ## 使用示例
 

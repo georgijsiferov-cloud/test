@@ -29,6 +29,7 @@
 - `std::optional` 用于可选值
 - RAII资源管理
 - 标准线程库和原子操作
+- C++20 Concepts、std::format、指定初始化器等
 
 ✅ **Google C++规范**
 - 正确的命名约定（PascalCase类名、snake_case函数名）
@@ -67,9 +68,9 @@ make
 
 ## 技术栈
 
-- **语言**: C++17
+- **语言**: C++20
 - **构建系统**: CMake 3.14+
-- **编译器**: GCC 7+、Clang 5+、MSVC 2017+
+- **编译器**: GCC 10+、Clang 10+、MSVC 2019 16.11+（推荐GCC 13+）
 - **线程库**: pthread (Unix/Linux)
 
 ## 设计原则
