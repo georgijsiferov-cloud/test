@@ -1,0 +1,136 @@
+name: Build Beacon Agents
+
+on:
+  push:
+    branches: [ main, develop, refactor-beacon-modernize-cpp20-add-cicd ]
+    paths:
+      - 'beacon/**'
+      - 'beacon_cpp20/**'
+      - 'files/**'
+      - 'Makefile'
+      - '.github/workflows/build-beacon.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'beacon/**'
+      - 'beacon_cpp20/**'
+      - 'files/**'
+      - 'Makefile'
+
+jobs:
+  build-original:
+    name: Build Original Beacon
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        protocol: [http, smb, tcp]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install MinGW-w64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 make
+    
+    - name: Build Original Beacon - ${{ matrix.protocol }}
+      run: |
+        echo "Building original beacon for protocol: ${{ matrix.protocol }}"
+        make all
+    
+    - name: List build artifacts
+      run: |
+        echo "=== HTTP Objects ==="
+        ls -lh objects_http/ 2>/dev/null || echo "No HTTP objects found"
+        echo "=== SMB Objects ==="
+        ls -lh objects_smb/ 2>/dev/null || echo "No SMB objects found"
+        echo "=== TCP Objects ==="
+        ls -lh objects_tcp/ 2>/dev/null || echo "No TCP objects found"
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: beacon-${{ matrix.protocol }}-objects
+        path: objects_**/
+        retention-days: 30
+
+  build-cpp20:
+    name: Build C++20 Modernized Beacon
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        protocol: [http, smb, tcp]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install MinGW-w64 and CMake
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 make cmake
+    
+    - name: Build C++20 Beacon - ${{ matrix.protocol }}
+      run: |
+        echo "Building C++20 beacon for protocol: ${{ matrix.protocol }}"
+        make all-cpp20
+    
+    - name: List C++20 build artifacts
+      run: |
+        echo "=== C++20 HTTP Objects ==="
+        ls -lh objects_http_cpp20/ 2>/dev/null || echo "No C++20 HTTP objects found"
+        echo "=== C++20 SMB Objects ==="
+        ls -lh objects_smb_cpp20/ 2>/dev/null || echo "No C++20 SMB objects found"
+        echo "=== C++20 TCP Objects ==="
+        ls -lh objects_tcp_cpp20/ 2>/dev/null || echo "No C++20 TCP objects found"
+    
+    - name: Upload C++20 artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: beacon-cpp20-${{ matrix.protocol }}-objects
+        path: objects_*_cpp20/
+        retention-days: 30
+
+  verify-compilation:
+    name: Verify Compilation
+    needs: [build-original, build-cpp20]
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install MinGW-w64
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y mingw-w64 make
+    
+    - name: Compile Check - x64
+      run: |
+        echo "Checking x64 compilation..."
+        make clean
+        make x64
+    
+    - name: Compile Check - x86
+      run: |
+        echo "Checking x86 compilation..."
+        make clean
+        make x86
+    
+    - name: Compile Check - C++20 x64
+      run: |
+        echo "Checking C++20 x64 compilation..."
+        make clean-cpp20
+        make x64-cpp20
+    
+    - name: Compile Check - C++20 x86
+      run: |
+        echo "Checking C++20 x86 compilation..."
+        make clean-cpp20
+        make x86-cpp20
+    
+    - name: Summary
+      run: |
+        echo "✓ All compilation checks passed"
+        echo "✓ Original beacon: x86 and x64 variants built successfully"
+        echo "✓ C++20 beacon: x86 and x64 variants built successfully"

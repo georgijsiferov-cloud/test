@@ -1,0 +1,68 @@
+# Build artifacts
+objects_http/
+objects_smb/
+objects_tcp/
+objects_http_cpp20/
+objects_smb_cpp20/
+objects_tcp_cpp20/
+
+# CMake build directories
+**/build/
+**/CMakeFiles/
+**/cmake_install.cmake
+**/CMakeCache.txt
+**/Makefile
+**/*.cmake
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Compiler output
+*.o
+*.a
+*.so
+*.lib
+*.dll
+*.exe
+*.out
+
+# Analysis reports
+cppcheck-report.txt
+cmake_output.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.user
+*.aps
+
+# Project specific
+.vs/
+.vscode/
+Debug/
+Release/
