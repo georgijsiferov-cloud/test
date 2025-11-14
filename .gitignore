@@ -1,0 +1,23 @@
+# Build artifacts
+/build/
+/.idea/
+/.vscode/
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+*.o
+*.obj
+*.lo
+*.la
+*.al
+*.a
+*.lib
+*.dll
+*.so
+*.dylib
+*.exe
+*.out
+*.app
