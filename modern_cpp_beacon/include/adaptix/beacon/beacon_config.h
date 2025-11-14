@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <optional>
+#include <vector>
 
 namespace adaptix {
 namespace beacon {
@@ -13,6 +14,7 @@ enum class TransportProtocol {
   kHttp,
   kHttps,
   kTcp,
+  kWebSocket,
   kNamedPipe
 };
 
@@ -59,6 +61,9 @@ class BeaconConfig {
   void set_max_retries(uint32_t retries);
   uint32_t max_retries() const { return max_retries_; }
 
+  void set_profile_data(std::vector<std::uint8_t> profile);
+  const std::vector<std::uint8_t>& profile_data() const { return profile_data_; }
+
   bool Validate() const;
 
  private:
@@ -71,6 +76,7 @@ class BeaconConfig {
   std::string user_agent_;
   std::string beacon_id_;
   uint32_t max_retries_;
+  std::vector<std::uint8_t> profile_data_;
 };
 
 }  // namespace beacon

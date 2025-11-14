@@ -121,6 +121,7 @@ make
 - [ARCHITECTURE.md](ARCHITECTURE.md): 架构设计与实现细节
 - [EXAMPLES.md](EXAMPLES.md): 使用示例和扩展参考
 - [CPP20_FEATURES.md](CPP20_FEATURES.md): C++20特性应用指南
+- [WEBSOCKET.md](WEBSOCKET.md): WebSocket与Profile配置指南
 
 ## 使用示例
 

@@ -65,6 +65,7 @@ make
 - [`modern_cpp_beacon/README.md`](modern_cpp_beacon/README.md)：项目说明
 - [`modern_cpp_beacon/ARCHITECTURE.md`](modern_cpp_beacon/ARCHITECTURE.md)：架构详情
 - [`modern_cpp_beacon/EXAMPLES.md`](modern_cpp_beacon/EXAMPLES.md)：使用示例
+- [`modern_cpp_beacon/WEBSOCKET.md`](modern_cpp_beacon/WEBSOCKET.md)：WebSocket与Profile配置
 
 ## 技术栈
 

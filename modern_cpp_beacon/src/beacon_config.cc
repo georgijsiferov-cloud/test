@@ -1,6 +1,7 @@
 #include "adaptix/beacon/beacon_config.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace adaptix {
 namespace beacon {
@@ -14,7 +15,8 @@ BeaconConfig::BeaconConfig()
       encryption_(EncryptionType::kNone),
       user_agent_("Mozilla/5.0"),
       beacon_id_(""),
-      max_retries_(3) {}
+      max_retries_(3),
+      profile_data_({}) {}
 
 void BeaconConfig::set_server_address(const std::string& address) {
   server_address_ = address;
@@ -50,6 +52,10 @@ void BeaconConfig::set_beacon_id(const std::string& id) {
 
 void BeaconConfig::set_max_retries(uint32_t retries) {
   max_retries_ = retries;
+}
+
+void BeaconConfig::set_profile_data(std::vector<std::uint8_t> profile) {
+  profile_data_ = std::move(profile);
 }
 
 bool BeaconConfig::Validate() const {
