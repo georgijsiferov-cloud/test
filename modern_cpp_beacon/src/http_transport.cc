@@ -32,6 +32,7 @@ std::optional<std::string> HttpTransport::MakeHttpRequest(
     const std::string& endpoint,
     const std::string& method,
     const std::optional<std::string>& body) {
+  (void)endpoint;
   (void)method;
   (void)body;
 

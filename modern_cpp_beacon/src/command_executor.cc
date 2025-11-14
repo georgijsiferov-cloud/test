@@ -4,25 +4,43 @@
 #include <cstdio>
 #include <memory>
 #include <sstream>
+#include <string>
 
 namespace adaptix {
 namespace beacon {
+namespace {
 
-TaskResult CommandExecutor::ExecuteCommandTask(const Task& task) {
+struct FileCloser {
+  void operator()(FILE* file) const noexcept {
+    if (file == nullptr) {
+      return;
+    }
+#ifdef _WIN32
+    _pclose(file);
+#else
+    pclose(file);
+#endif
+  }
+};
+
+}  // namespace
+
+TaskResult CommandExecutor::RunCommand(std::string_view command,
+                                        const std::string& task_id,
+                                        std::string_view error_message) {
   std::array<char, 128> buffer;
   std::string output;
+  const std::string command_string(command);
 
 #ifdef _WIN32
-  std::unique_ptr<FILE, decltype(&_pclose)> pipe(
-      _popen(task.payload().c_str(), "r"), _pclose);
+  std::unique_ptr<FILE, FileCloser> pipe(_popen(command_string.c_str(), "r"));
 #else
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(
-      popen(task.payload().c_str(), "r"), pclose);
+  std::unique_ptr<FILE, FileCloser> pipe(popen(command_string.c_str(), "r"));
 #endif
 
   if (!pipe) {
-    TaskResult result(task.id(), TaskStatus::kFailed, "");
-    result.set_error_message("Failed to execute command");
+    TaskResult result(task_id, TaskStatus::kFailed, "");
+    result.set_error_message(std::string(error_message));
     return result;
   }
 
@@ -30,36 +48,18 @@ TaskResult CommandExecutor::ExecuteCommandTask(const Task& task) {
     output += buffer.data();
   }
 
-  return TaskResult(task.id(), TaskStatus::kCompleted, output);
+  return TaskResult(task_id, TaskStatus::kCompleted, output);
+}
+
+TaskResult CommandExecutor::ExecuteCommandTask(const Task& task) {
+  return RunCommand(task.payload(), task.id(), "Failed to execute command");
 }
 
 TaskResult CommandExecutor::ExecuteScriptTask(const Task& task,
                                                std::string_view interpreter) {
   std::ostringstream command_stream;
   command_stream << interpreter << " -c \"" << task.payload() << "\"";
-  
-  std::array<char, 128> buffer;
-  std::string output;
-
-#ifdef _WIN32
-  std::unique_ptr<FILE, decltype(&_pclose)> pipe(
-      _popen(command_stream.str().c_str(), "r"), _pclose);
-#else
-  std::unique_ptr<FILE, decltype(&pclose)> pipe(
-      popen(command_stream.str().c_str(), "r"), pclose);
-#endif
-
-  if (!pipe) {
-    TaskResult result(task.id(), TaskStatus::kFailed, "");
-    result.set_error_message("Failed to execute script");
-    return result;
-  }
-
-  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-    output += buffer.data();
-  }
-
-  return TaskResult(task.id(), TaskStatus::kCompleted, output);
+  return RunCommand(command_stream.str(), task.id(), "Failed to execute script");
 }
 
 TaskResult DefaultCommandExecutor::Execute(const Task& task) {

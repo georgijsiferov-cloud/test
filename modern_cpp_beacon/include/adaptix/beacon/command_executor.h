@@ -25,6 +25,11 @@ class CommandExecutor {
  protected:
   TaskResult ExecuteCommandTask(const Task& task);
   TaskResult ExecuteScriptTask(const Task& task, std::string_view interpreter);
+
+ private:
+  TaskResult RunCommand(std::string_view command,
+                        const std::string& task_id,
+                        std::string_view error_message);
 };
 
 class DefaultCommandExecutor : public CommandExecutor {

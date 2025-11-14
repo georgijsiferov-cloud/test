@@ -1,0 +1,35 @@
+# Build artifacts
+/build/
+/.idea/
+/.vscode/
+/CMakeFiles/
+/CMakeCache.txt
+/Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Compiled objects
+*.o
+*.obj
+*.lo
+*.la
+*.al
+
+# Static libraries
+*.a
+*.lib
+
+# Shared libraries
+*.dll
+*.so
+*.dylib
+
+# Executables
+beacon_agent
+*.exe
+*.out
+*.app
+
+# Debug symbols
+*.dSYM/
